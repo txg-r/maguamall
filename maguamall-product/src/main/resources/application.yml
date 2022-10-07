@@ -1,0 +1,34 @@
+server:
+  port: 4000
+  
+spring:
+  application:
+    name: maguamall-product
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://49.235.81.76:3306/maguamall_pms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: A123456b
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    nacos:
+      server-addr: 49.235.81.76:8848
+      config:
+        import-check:
+          enabled: false
+
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 0
+      logic-not-delete-value: 1
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+

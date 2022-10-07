@@ -1,0 +1,30 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: maguamall-ware
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://49.235.81.76:3306/maguamall_pms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: A123456b
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    nacos:
+      server-addr: 49.235.81.76:8848
+      config:
+        import-check:
+          enabled: false
+
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: auto
+
+
+

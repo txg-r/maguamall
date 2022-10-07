@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: maguamall-gateway
+
+  cloud:
+    nacos:
+      server-addr: 49.235.81.76:8848
+      config:
+        namespace: 10efb272-5975-4731-9e23-209865b54e8a
+        group: DEFAULT_GROUP
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allow-credentials: true
+            allowedOriginPatterns: '*'
+            allowedHeaders: "*"
+            allowedMethods: "*"
+
+
+  config:
+    import: optional:nacos:maguamall-gateway.yml
+
+server:
+  port: 80

@@ -1,0 +1,16 @@
+server:
+  port: 8000
+spring:
+  application:
+    name: maguamall-third-party
+  cloud:
+    nacos:
+      server-addr: 49.235.81.76:8848
+      config:
+        namespace: a4d82e50-b506-41f7-a059-1f43bf10f2c3
+        group: DEFAULT_GROUP
+    util:
+      enabled: false
+  config:
+    import: optional:nacos:oss.yml
+
