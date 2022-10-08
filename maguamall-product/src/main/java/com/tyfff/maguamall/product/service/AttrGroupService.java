@@ -3,6 +3,7 @@ package com.tyfff.maguamall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tyfff.common.utils.PageUtils;
 import com.tyfff.maguamall.product.entity.AttrGroupEntity;
+import com.tyfff.maguamall.product.vo.request.AttrGroupRequestVo;
 
 import java.util.Map;
 
@@ -18,5 +19,8 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     PageUtils queryPage(Map<String, Object> params, Integer catelogId);
+
+    AttrGroupRequestVo getVoById(Long attrGroupId);
+
 }
 

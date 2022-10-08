@@ -3,6 +3,7 @@ package com.tyfff.maguamall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.tyfff.maguamall.product.vo.request.AttrGroupRequestVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,9 +47,9 @@ public class AttrGroupController {
      */
     @RequestMapping("/info/{attrGroupId}")
     public R info(@PathVariable("attrGroupId") Long attrGroupId){
-		AttrGroupEntity attrGroup = attrGroupService.getById(attrGroupId);
+		AttrGroupRequestVo attrGroupRequestVo = attrGroupService.getVoById(attrGroupId);
 
-        return R.ok().put("attrGroup", attrGroup);
+        return R.ok().put("attrGroup", attrGroupRequestVo);
     }
 
     /**
