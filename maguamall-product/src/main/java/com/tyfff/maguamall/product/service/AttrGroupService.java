@@ -2,9 +2,12 @@ package com.tyfff.maguamall.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tyfff.common.utils.PageUtils;
+import com.tyfff.maguamall.product.entity.AttrEntity;
 import com.tyfff.maguamall.product.entity.AttrGroupEntity;
-import com.tyfff.maguamall.product.vo.request.AttrGroupRequestVo;
+import com.tyfff.maguamall.product.vo.request.AttrGroupReqRelationVo;
+import com.tyfff.maguamall.product.vo.request.AttrGroupReqVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,7 +23,12 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
 
     PageUtils queryPage(Map<String, Object> params, Integer catelogId);
 
-    AttrGroupRequestVo getVoById(Long attrGroupId);
+    AttrGroupReqVo getVoById(Long attrGroupId);
 
+    List<AttrEntity> getAttrByRelation(Integer attrgroupId);
+
+    void deleteAttrRelation(AttrGroupReqRelationVo[] vo);
+
+    void getNoAttrByRelation(Map<String, Object> params, Integer attrgroupId);
 }
 

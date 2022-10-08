@@ -1,10 +1,9 @@
 package com.tyfff.maguamall.product.controller;
 
-import java.util.Arrays;
 import java.util.Map;
 
-import com.tyfff.maguamall.product.vo.request.AttrRequestVo;
-import com.tyfff.maguamall.product.vo.response.AttrResponseVo;
+import com.tyfff.maguamall.product.vo.request.AttrReqVo;
+import com.tyfff.maguamall.product.vo.response.AttrResVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tyfff.maguamall.product.entity.AttrEntity;
 import com.tyfff.maguamall.product.service.AttrService;
 import com.tyfff.common.utils.PageUtils;
 import com.tyfff.common.utils.R;
@@ -48,7 +46,7 @@ public class AttrController {
      */
     @RequestMapping("/info/{attrId}")
     public R info(@PathVariable("attrId") Long attrId){
-		AttrResponseVo attr = attrService.getByVoId(attrId);
+		AttrResVo attr = attrService.getByVoId(attrId);
 
         return R.ok().put("attr", attr);
     }
@@ -57,7 +55,7 @@ public class AttrController {
      * 保存
      */
     @RequestMapping("/save")
-    public R save(@RequestBody AttrRequestVo attr){
+    public R save(@RequestBody AttrReqVo attr){
 		attrService.saveVo(attr);
 
         return R.ok();
@@ -67,7 +65,7 @@ public class AttrController {
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody AttrRequestVo attr){
+    public R update(@RequestBody AttrReqVo attr){
 		attrService.updateVo(attr);
 
         return R.ok();

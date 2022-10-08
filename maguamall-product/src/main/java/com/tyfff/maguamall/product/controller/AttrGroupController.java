@@ -1,15 +1,14 @@
 package com.tyfff.maguamall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
-import com.tyfff.maguamall.product.vo.request.AttrGroupRequestVo;
+import com.tyfff.maguamall.product.entity.AttrEntity;
+import com.tyfff.maguamall.product.vo.request.AttrGroupReqRelationVo;
+import com.tyfff.maguamall.product.vo.request.AttrGroupReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tyfff.maguamall.product.entity.AttrGroupEntity;
 import com.tyfff.maguamall.product.service.AttrGroupService;
@@ -47,9 +46,31 @@ public class AttrGroupController {
      */
     @RequestMapping("/info/{attrGroupId}")
     public R info(@PathVariable("attrGroupId") Long attrGroupId){
-		AttrGroupRequestVo attrGroupRequestVo = attrGroupService.getVoById(attrGroupId);
+		AttrGroupReqVo attrGroupReqVo = attrGroupService.getVoById(attrGroupId);
 
-        return R.ok().put("attrGroup", attrGroupRequestVo);
+        return R.ok().put("attrGroup", attrGroupReqVo);
+    }
+
+    /**
+     * 获取指定分组关联的所有属性
+     * @param attrgroupId   分组id
+     * @return  所有属性
+     */
+    @GetMapping("{attrgroupId}/attr/relation")
+    public R attrRelation(@PathVariable Integer attrgroupId){
+        List<AttrEntity> attrList = attrGroupService.getAttrByRelation(attrgroupId);
+        return R.ok().put("data",attrList);
+    }
+
+    /**
+     * 获取属性分组里面还没有关联的本分类里面的其他基本属性
+     * @param params    分页查询数据
+     * @return 没有关联的本分类里面的其他基本属性
+     */
+    @GetMapping("{attrgroupId}/noattr/relation")
+    public R noattrRelation(@RequestParam Map<String, Object> params, @PathVariable Integer attrgroupId){
+        attrGroupService.getNoAttrByRelation(params,attrgroupId);
+        return R.ok();
     }
 
     /**
@@ -79,6 +100,12 @@ public class AttrGroupController {
     public R delete(@RequestBody Long[] attrGroupIds){
 		attrGroupService.removeByIds(Arrays.asList(attrGroupIds));
 
+        return R.ok();
+    }
+
+    @PostMapping("/attr/relation/delete")
+    public R deleteAttrRelation(@RequestBody AttrGroupReqRelationVo[] vo){
+        attrGroupService.deleteAttrRelation(vo);
         return R.ok();
     }
 

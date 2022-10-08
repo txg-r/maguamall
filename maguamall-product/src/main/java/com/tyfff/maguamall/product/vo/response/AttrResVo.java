@@ -1,11 +1,10 @@
-package com.tyfff.maguamall.product.vo.request;
+package com.tyfff.maguamall.product.vo.response;
 
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 @Data
-public class AttrRequestVo {
-
+public class AttrResVo {
     /**
      * 属性id
      */
@@ -45,5 +44,10 @@ public class AttrRequestVo {
 
     private Long attrGroupId;
 
+    private String attrGroupName;
 
+    private String catelogName;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long[] catelogPath;
 }

@@ -7,8 +7,8 @@ import com.tyfff.maguamall.product.dao.CategoryDao;
 import com.tyfff.maguamall.product.entity.AttrAttrgroupRelationEntity;
 import com.tyfff.maguamall.product.entity.AttrGroupEntity;
 import com.tyfff.maguamall.product.entity.CategoryEntity;
-import com.tyfff.maguamall.product.vo.request.AttrRequestVo;
-import com.tyfff.maguamall.product.vo.response.AttrResponseVo;
+import com.tyfff.maguamall.product.vo.request.AttrReqVo;
+import com.tyfff.maguamall.product.vo.response.AttrResVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,23 +60,27 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 wrapper
         );
         //将分页数据转为Vo
-        List<AttrResponseVo> responseVos = page.getRecords().stream().map(attrEntity -> {
-            AttrResponseVo responseVo = new AttrResponseVo();
+        List<AttrResVo> responseVos = page.getRecords().stream().map(attrEntity -> {
+            AttrResVo responseVo = new AttrResVo();
             BeanUtils.copyProperties(attrEntity, responseVo);
             //查询属性的属性分组id
             AttrAttrgroupRelationEntity relationEntity = relationDao.
                     selectOne(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>().eq(AttrAttrgroupRelationEntity::getAttrId, attrEntity.getAttrId()));
 
             //查询分组
-            AttrGroupEntity groupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());
-            //设置Vo中分组名
-            responseVo.setAttrGroupId(groupEntity.getAttrGroupId());
-            responseVo.setAttrGroupName(groupEntity.getAttrGroupName());
+            if (relationEntity!=null){
+                AttrGroupEntity groupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());
+                //设置Vo中分组名
+                responseVo.setAttrGroupId(groupEntity.getAttrGroupId());
+                responseVo.setAttrGroupName(groupEntity.getAttrGroupName());
+            }
             //查询分类
             CategoryEntity categoryEntity = categoryDao
                     .selectOne(new LambdaQueryWrapper<CategoryEntity>().eq(CategoryEntity::getCatId, attrEntity.getCatelogId()));
-            //设置分类名
-            responseVo.setCatelogName(categoryEntity.getName());
+            if (categoryEntity!=null){
+                //设置分类名
+                responseVo.setCatelogName(categoryEntity.getName());
+            }
             return responseVo;
         }).collect(Collectors.toList());
 
@@ -87,7 +91,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     @Override
     @Transactional
-    public void saveVo(AttrRequestVo attr) {
+    public void saveVo(AttrReqVo attr) {
         AttrEntity attrEntity = new AttrEntity();
         //保存属性
         BeanUtils.copyProperties(attr, attrEntity);
@@ -100,35 +104,51 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     }
 
     @Override
-    public AttrResponseVo getByVoId(Long attrId) {
+    public AttrResVo getByVoId(Long attrId) {
         AttrEntity attrEntity = getById(attrId);
-        AttrResponseVo responseVo = new AttrResponseVo();
+        AttrResVo responseVo = new AttrResVo();
         BeanUtils.copyProperties(attrEntity, responseVo);
         //查询属性的属性分组id
         AttrAttrgroupRelationEntity relationEntity = relationDao.
                 selectOne(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>().eq(AttrAttrgroupRelationEntity::getAttrId, attrEntity.getAttrId()));
-        //设置分组id
-        responseVo.setAttrGroupId(relationEntity.getAttrGroupId());
-        //查询分类path
-        Long[] categoryPath = findCategoryPath(attrEntity.getCatelogId());
-        responseVo.setCatelogPath(categoryPath);
+        if (relationEntity!=null){
+            //设置分组id
+            responseVo.setAttrGroupId(relationEntity.getAttrGroupId());
+        }
+        if (attrEntity.getCatelogId()!=null){
+            //查询分类path
+            Long[] categoryPath = findCategoryPath(attrEntity.getCatelogId());
+            responseVo.setCatelogPath(categoryPath);
+        }
         return responseVo;
     }
 
     @Override
     @Transactional
-    public void updateVo(AttrRequestVo attrVo) {
+    public void updateVo(AttrReqVo attrVo) {
         AttrEntity attrEntity = new AttrEntity();
         //修改属性基本信息
         BeanUtils.copyProperties(attrVo, attrEntity);
         this.updateById(attrEntity);
         //修改关联信息
+        //首先检查是否存在关联信息
+        AttrAttrgroupRelationEntity relation = relationDao.selectOne(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
+                .eq(AttrAttrgroupRelationEntity::getAttrId, attrVo.getAttrId())
+                .eq(AttrAttrgroupRelationEntity::getAttrGroupId, attrVo.getAttrGroupId()));
         AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
         relationEntity.setAttrGroupId(attrVo.getAttrGroupId());
-        relationDao.update(
-                        relationEntity
-                        , new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
-                                .eq(AttrAttrgroupRelationEntity::getAttrId, attrVo.getAttrId()));
+        if (relation!=null){
+            //存在则修改
+            relationDao.update(
+                    relationEntity
+                    , new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
+                            .eq(AttrAttrgroupRelationEntity::getAttrId, attrVo.getAttrId()));
+        }else {
+            //不存在插入
+            relationEntity.setAttrId(attrVo.getAttrId());
+            relationDao.insert(relationEntity);
+        }
+
 
     }
 

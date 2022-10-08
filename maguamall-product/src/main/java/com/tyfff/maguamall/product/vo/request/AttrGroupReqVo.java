@@ -4,7 +4,7 @@ import com.tyfff.maguamall.product.entity.AttrGroupEntity;
 import lombok.Data;
 
 @Data
-public class AttrGroupRequestVo extends AttrGroupEntity {
+public class AttrGroupReqVo extends AttrGroupEntity {
 
 
     private Long[] catelogPath;

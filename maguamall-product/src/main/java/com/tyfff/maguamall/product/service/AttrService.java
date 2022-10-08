@@ -3,8 +3,8 @@ package com.tyfff.maguamall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tyfff.common.utils.PageUtils;
 import com.tyfff.maguamall.product.entity.AttrEntity;
-import com.tyfff.maguamall.product.vo.request.AttrRequestVo;
-import com.tyfff.maguamall.product.vo.response.AttrResponseVo;
+import com.tyfff.maguamall.product.vo.request.AttrReqVo;
+import com.tyfff.maguamall.product.vo.response.AttrResVo;
 
 import java.util.Map;
 
@@ -19,11 +19,11 @@ public interface AttrService extends IService<AttrEntity> {
 
     PageUtils queryPage(Map<String, Object> params, Integer catelogId);
 
-    void saveVo(AttrRequestVo attr);
+    void saveVo(AttrReqVo attr);
 
-    AttrResponseVo getByVoId(Long attrId);
+    AttrResVo getByVoId(Long attrId);
 
-    void updateVo(AttrRequestVo attr);
+    void updateVo(AttrReqVo attr);
 
     void removeDetail(Long[] attrIds);
 }
