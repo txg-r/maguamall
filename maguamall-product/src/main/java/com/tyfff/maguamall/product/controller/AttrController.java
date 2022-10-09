@@ -33,9 +33,11 @@ public class AttrController {
     /**
      * 列表
      */
-    @RequestMapping("/base/list/{catelogId}")
-    public R list(@RequestParam Map<String, Object> params, @PathVariable Integer catelogId){
-        PageUtils page = attrService.queryPage(params,catelogId);
+    @RequestMapping("/{attrType}/list/{catelogId}")
+    public R list(@RequestParam Map<String, Object> params,
+                  @PathVariable Integer catelogId,
+                  @PathVariable String attrType){
+        PageUtils page = attrService.queryPage(params,catelogId,attrType);
 
         return R.ok().put("page", page);
     }

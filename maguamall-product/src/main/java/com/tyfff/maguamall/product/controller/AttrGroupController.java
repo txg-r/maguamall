@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.tyfff.maguamall.product.entity.AttrEntity;
+import com.tyfff.maguamall.product.service.AttrAttrgroupRelationService;
 import com.tyfff.maguamall.product.vo.request.AttrGroupReqRelationVo;
 import com.tyfff.maguamall.product.vo.request.AttrGroupReqVo;
+import com.tyfff.maguamall.product.vo.response.AttrGroupResVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +32,9 @@ public class AttrGroupController {
     @Autowired
     private AttrGroupService attrGroupService;
 
+    @Autowired
+    private AttrAttrgroupRelationService relationService;
+
     /**
      * 列表
      */
@@ -51,13 +56,20 @@ public class AttrGroupController {
         return R.ok().put("attrGroup", attrGroupReqVo);
     }
 
+    @GetMapping("{catelogId}/withattr")
+    public R catelogAttrInfo(@PathVariable Long catelogId){
+        List<AttrGroupResVo> data = attrGroupService.getAttrGroupWithAttrByCatelogId(catelogId);
+
+        return R.ok().put("data",data);
+    }
+
     /**
      * 获取指定分组关联的所有属性
      * @param attrgroupId   分组id
      * @return  所有属性
      */
     @GetMapping("{attrgroupId}/attr/relation")
-    public R attrRelation(@PathVariable Integer attrgroupId){
+    public R attrRelation(@PathVariable Long attrgroupId){
         List<AttrEntity> attrList = attrGroupService.getAttrByRelation(attrgroupId);
         return R.ok().put("data",attrList);
     }
@@ -69,8 +81,8 @@ public class AttrGroupController {
      */
     @GetMapping("{attrgroupId}/noattr/relation")
     public R noattrRelation(@RequestParam Map<String, Object> params, @PathVariable Integer attrgroupId){
-        attrGroupService.getNoAttrByRelation(params,attrgroupId);
-        return R.ok();
+        PageUtils noAttr = attrGroupService.getNoAttrByRelation(params, attrgroupId);
+        return R.ok().put("page",noAttr);
     }
 
     /**
@@ -79,6 +91,13 @@ public class AttrGroupController {
     @RequestMapping("/save")
     public R save(@RequestBody AttrGroupEntity attrGroup){
 		attrGroupService.save(attrGroup);
+
+        return R.ok();
+    }
+
+    @PostMapping("attr/relation")
+    public R saveAttrRelation(@RequestBody AttrGroupReqRelationVo[] relationVo){
+        relationService.saveByVo(relationVo);
 
         return R.ok();
     }

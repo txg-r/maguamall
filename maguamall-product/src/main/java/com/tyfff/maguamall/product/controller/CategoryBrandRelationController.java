@@ -1,9 +1,14 @@
 package com.tyfff.maguamall.product.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
+import com.tyfff.maguamall.product.vo.response.BrandResVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +33,7 @@ public class CategoryBrandRelationController {
 
 
     @GetMapping("/catelog/list")
-    public R catelogList(@RequestParam Integer brandId) {
+    public R catelogList(@RequestParam Long brandId) {
         List<CategoryBrandRelationEntity> data = categoryBrandRelationService.lambdaQuery().eq(CategoryBrandRelationEntity::getBrandId, brandId).list();
 
         return R.ok().put("data", data);
@@ -43,6 +48,30 @@ public class CategoryBrandRelationController {
         PageUtils page = categoryBrandRelationService.queryPage(params);
 
         return R.ok().put("page", page);
+    }
+
+    @GetMapping("/brands/list")
+    public R brandList(@RequestParam(required = true) Long catId) {
+        LambdaQueryChainWrapper<CategoryBrandRelationEntity> query = categoryBrandRelationService.lambdaQuery();
+        List<CategoryBrandRelationEntity> data;
+        if (catId != null) {
+            data = query
+                    .eq(CategoryBrandRelationEntity::getCatelogId, catId)
+                    .select(CategoryBrandRelationEntity::getBrandId,CategoryBrandRelationEntity::getBrandName)
+                    .list();
+        } else {
+            data = query.select(CategoryBrandRelationEntity::getBrandId,CategoryBrandRelationEntity::getBrandName)
+                    .list();
+        }
+        List<Object> list = data.stream().map(c -> {
+            BrandResVo brandResVo = new BrandResVo();
+            brandResVo.setBrandId(c.getBrandId());
+            brandResVo.setBrandName(c.getBrandName());
+            return brandResVo;
+        }).collect(Collectors.toList());
+        return R.ok().put("data", list);
+
+
     }
 
 

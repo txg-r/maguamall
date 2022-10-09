@@ -1,6 +1,7 @@
 package com.tyfff.maguamall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.tyfff.common.constant.ProductConstant;
 import com.tyfff.maguamall.product.dao.AttrAttrgroupRelationDao;
 import com.tyfff.maguamall.product.dao.AttrGroupDao;
 import com.tyfff.maguamall.product.dao.CategoryDao;
@@ -41,9 +42,17 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     private CategoryDao categoryDao;
 
     @Override
-    public PageUtils queryPage(Map<String, Object> params, Integer catelogId) {
-        //基本分页模糊查询
+    public PageUtils queryPage(Map<String, Object> params, Integer catelogId, String attrType) {
         LambdaQueryWrapper<AttrEntity> wrapper = new LambdaQueryWrapper<>();
+        //根据attrType查询
+        if ("base".equals(attrType)){
+            wrapper.eq(AttrEntity::getAttrType,ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode());
+        }else if ("sale".equals(attrType)){
+            wrapper.eq(AttrEntity::getAttrType,ProductConstant.AttrEnum.ATTR_TYPE_SALE.getCode());
+        }
+
+
+        //基本分页模糊查询
         if (catelogId != 0) {
             wrapper.eq(AttrEntity::getCatelogId, catelogId);
         }
@@ -96,11 +105,13 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         //保存属性
         BeanUtils.copyProperties(attr, attrEntity);
         this.save(attrEntity);
-        //保存属性与属性分组关系
-        AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
-        relationEntity.setAttrGroupId(attr.getAttrGroupId());
-        relationEntity.setAttrId(attrEntity.getAttrId());
-        relationDao.insert(relationEntity);
+        if (attr.getAttrGroupId()!=null){
+            //保存属性与属性分组关系
+            AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
+            relationEntity.setAttrGroupId(attr.getAttrGroupId());
+            relationEntity.setAttrId(attrEntity.getAttrId());
+            relationDao.insert(relationEntity);
+        }
     }
 
     @Override
@@ -130,6 +141,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         //修改属性基本信息
         BeanUtils.copyProperties(attrVo, attrEntity);
         this.updateById(attrEntity);
+        if (attrVo.getAttrGroupId()==null){
+            return;
+        }
         //修改关联信息
         //首先检查是否存在关联信息
         AttrAttrgroupRelationEntity relation = relationDao.selectOne(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()

@@ -1,6 +1,5 @@
 package com.tyfff.maguamall.product.service.impl;
 
-import com.alibaba.nacos.shaded.org.checkerframework.checker.units.qual.A;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.tyfff.maguamall.product.dao.AttrAttrgroupRelationDao;
 import com.tyfff.maguamall.product.dao.AttrDao;
@@ -10,6 +9,7 @@ import com.tyfff.maguamall.product.entity.AttrEntity;
 import com.tyfff.maguamall.product.entity.CategoryEntity;
 import com.tyfff.maguamall.product.vo.request.AttrGroupReqRelationVo;
 import com.tyfff.maguamall.product.vo.request.AttrGroupReqVo;
+import com.tyfff.maguamall.product.vo.response.AttrGroupResVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -94,11 +94,11 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     }
 
     @Override
-    public List<AttrEntity> getAttrByRelation(Integer attrgroupId) {
+    public List<AttrEntity> getAttrByRelation(Long attrgroupId) {
         List<AttrAttrgroupRelationEntity> relationEntities = relationDao.selectList(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
                 .eq(AttrAttrgroupRelationEntity::getAttrGroupId, attrgroupId));
         List<Long> attrIds = relationEntities.stream().map(AttrAttrgroupRelationEntity::getAttrId).collect(Collectors.toList());
-        if (attrIds.isEmpty()){
+        if (attrIds.isEmpty()) {
             return null;
         }
         LambdaQueryWrapper<AttrEntity> wrapper = new LambdaQueryWrapper<AttrEntity>().in(AttrEntity::getAttrId, attrIds);
@@ -106,29 +106,61 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     }
 
     @Override
-    public void getNoAttrByRelation(Map<String, Object> params, Integer attrgroupId) {
+    public PageUtils getNoAttrByRelation(Map<String, Object> params, Integer attrgroupId) {
+        //查询分组关联属性id
         List<AttrAttrgroupRelationEntity> relationEntities = relationDao.selectList(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
                 .eq(AttrAttrgroupRelationEntity::getAttrGroupId, attrgroupId));
         List<Long> attrIds = relationEntities.stream().map(AttrAttrgroupRelationEntity::getAttrId).collect(Collectors.toList());
-        LambdaQueryWrapper<AttrEntity> wrapper = new LambdaQueryWrapper<AttrEntity>().not(w->{
-            w.in(AttrEntity::getAttrId, attrIds);
-        });
-        // TODO: 2022/10/8 continue
-        return;
+        LambdaQueryWrapper<AttrEntity> wrapper = new LambdaQueryWrapper<AttrEntity>();
+        if (!attrIds.isEmpty()) {
+            //构造不关联属性wrapper
+            wrapper.notIn(AttrEntity::getAttrId, attrIds);
+        }
+        //添加模糊查询
+        String key = (String) params.get("key");
+        if (StringUtils.hasText(key)) {
+            wrapper.and(w -> {
+                w.eq(AttrEntity::getAttrId, key)
+                        .or()
+                        .like(AttrEntity::getAttrName, key);
+            });
+        }
+        IPage<AttrEntity> page = attrDao.selectPage(
+                new Query<AttrEntity>().getPage(params),
+                wrapper
+        );
+
+        return new PageUtils(page);
+    }
+
+    @Override
+    public List<AttrGroupResVo> getAttrGroupWithAttrByCatelogId(Long catelogId) {
+        //查询属性分组
+        LambdaQueryWrapper<AttrGroupEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AttrGroupEntity::getCatelogId,catelogId);
+        List<AttrGroupEntity> attrGroupEntities = baseMapper.selectList(wrapper);
+
+        //封装成vo返回
+        return attrGroupEntities.stream().map(group -> {
+            AttrGroupResVo attrGroupResVo = new AttrGroupResVo();
+            BeanUtils.copyProperties(group, attrGroupResVo);
+            //查询分组的属性列表
+            attrGroupResVo.setAttrs(this.getAttrByRelation(group.getAttrGroupId()));
+            return attrGroupResVo;
+        }).collect(Collectors.toList());
     }
 
     @Override
     public void deleteAttrRelation(AttrGroupReqRelationVo[] vos) {
-        if (vos.length==0){
+        if (vos.length == 0) {
             return;
         }
         for (AttrGroupReqRelationVo vo : vos) {
             relationDao.delete(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
-                    .eq(AttrAttrgroupRelationEntity::getAttrGroupId,vo.getAttrGroupId())
-                    .eq(AttrAttrgroupRelationEntity::getAttrId,vo.getAttrId()));
+                    .eq(AttrAttrgroupRelationEntity::getAttrGroupId, vo.getAttrGroupId())
+                    .eq(AttrAttrgroupRelationEntity::getAttrId, vo.getAttrId()));
         }
     }
-
 
 
     /**

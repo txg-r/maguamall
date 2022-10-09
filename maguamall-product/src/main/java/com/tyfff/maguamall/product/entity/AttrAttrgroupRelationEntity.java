@@ -1,5 +1,7 @@
 package com.tyfff.maguamall.product.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -31,6 +33,7 @@ public class AttrAttrgroupRelationEntity implements Serializable {
 	/**
 	 * 属性分组id
 	 */
+	@TableField(insertStrategy = FieldStrategy.NOT_NULL,updateStrategy = FieldStrategy.NOT_NULL)
 	private Long attrGroupId;
 	/**
 	 * 属性组内排序
