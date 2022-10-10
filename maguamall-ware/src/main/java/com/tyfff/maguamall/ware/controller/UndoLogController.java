@@ -1,19 +1,14 @@
 package com.tyfff.maguamall.ware.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.tyfff.maguamall.ware.entity.UndoLogEntity;
-import com.tyfff.maguamall.ware.service.UndoLogService;
 import com.tyfff.common.utils.PageUtils;
 import com.tyfff.common.utils.R;
+import com.tyfff.maguamall.ware.entity.UndoLogEntity;
+import com.tyfff.maguamall.ware.service.UndoLogService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 
@@ -25,7 +20,7 @@ import com.tyfff.common.utils.R;
  * @date 2022-09-26 15:42:40
  */
 @RestController
-@RequestMapping("coupon/undolog")
+@RequestMapping("ware/undolog")
 public class UndoLogController {
     @Autowired
     private UndoLogService undoLogService;

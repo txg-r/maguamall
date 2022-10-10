@@ -1,11 +1,13 @@
 package com.tyfff.maguamall.product.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tyfff.common.utils.PageUtils;
 import com.tyfff.maguamall.product.entity.AttrEntity;
 import com.tyfff.maguamall.product.vo.request.AttrReqVo;
 import com.tyfff.maguamall.product.vo.response.AttrResVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,5 +28,9 @@ public interface AttrService extends IService<AttrEntity> {
     void updateVo(AttrReqVo attr);
 
     void removeDetail(Long[] attrIds);
+
+    List<AttrEntity> getByIds(List<Long> attrIds);
+
+    PageUtils queryPageByWrapper(Map<String, Object> params, LambdaQueryWrapper<AttrEntity> wrapper);
 }
 

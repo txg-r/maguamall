@@ -1,46 +1,45 @@
 package com.tyfff.maguamall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.tyfff.maguamall.product.dao.AttrAttrgroupRelationDao;
-import com.tyfff.maguamall.product.dao.AttrDao;
-import com.tyfff.maguamall.product.dao.CategoryDao;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.tyfff.common.utils.PageUtils;
+import com.tyfff.common.utils.Query;
+import com.tyfff.maguamall.product.dao.AttrGroupDao;
 import com.tyfff.maguamall.product.entity.AttrAttrgroupRelationEntity;
 import com.tyfff.maguamall.product.entity.AttrEntity;
+import com.tyfff.maguamall.product.entity.AttrGroupEntity;
 import com.tyfff.maguamall.product.entity.CategoryEntity;
+import com.tyfff.maguamall.product.service.AttrAttrgroupRelationService;
+import com.tyfff.maguamall.product.service.AttrGroupService;
+import com.tyfff.maguamall.product.service.AttrService;
+import com.tyfff.maguamall.product.service.CategoryService;
 import com.tyfff.maguamall.product.vo.request.AttrGroupReqRelationVo;
 import com.tyfff.maguamall.product.vo.request.AttrGroupReqVo;
 import com.tyfff.maguamall.product.vo.response.AttrGroupResVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.tyfff.common.utils.PageUtils;
-import com.tyfff.common.utils.Query;
-
-import com.tyfff.maguamall.product.dao.AttrGroupDao;
-import com.tyfff.maguamall.product.entity.AttrGroupEntity;
-import com.tyfff.maguamall.product.service.AttrGroupService;
-import org.springframework.util.StringUtils;
-
 
 @Service("attrGroupService")
 public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEntity> implements AttrGroupService {
     @Autowired
-    private CategoryDao categoryDao;
+    private CategoryService categoryService;
 
     @Autowired
-    private AttrDao attrDao;
+    private AttrService attrService;
 
     @Autowired
-    private AttrAttrgroupRelationDao relationDao;
+    private AttrAttrgroupRelationService relationService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -95,21 +94,22 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     @Override
     public List<AttrEntity> getAttrByRelation(Long attrgroupId) {
-        List<AttrAttrgroupRelationEntity> relationEntities = relationDao.selectList(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
-                .eq(AttrAttrgroupRelationEntity::getAttrGroupId, attrgroupId));
+        List<AttrAttrgroupRelationEntity> relationEntities = relationService.lambdaQuery()
+                .eq(AttrAttrgroupRelationEntity::getAttrGroupId, attrgroupId)
+                .list();
         List<Long> attrIds = relationEntities.stream().map(AttrAttrgroupRelationEntity::getAttrId).collect(Collectors.toList());
         if (attrIds.isEmpty()) {
             return null;
         }
-        LambdaQueryWrapper<AttrEntity> wrapper = new LambdaQueryWrapper<AttrEntity>().in(AttrEntity::getAttrId, attrIds);
-        return attrDao.selectList(wrapper);
+        return attrService.getByIds(attrIds);
     }
 
     @Override
     public PageUtils getNoAttrByRelation(Map<String, Object> params, Integer attrgroupId) {
         //查询分组关联属性id
-        List<AttrAttrgroupRelationEntity> relationEntities = relationDao.selectList(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
-                .eq(AttrAttrgroupRelationEntity::getAttrGroupId, attrgroupId));
+        List<AttrAttrgroupRelationEntity> relationEntities = relationService.lambdaQuery()
+                .eq(AttrAttrgroupRelationEntity::getAttrGroupId, attrgroupId)
+                .list();
         List<Long> attrIds = relationEntities.stream().map(AttrAttrgroupRelationEntity::getAttrId).collect(Collectors.toList());
         LambdaQueryWrapper<AttrEntity> wrapper = new LambdaQueryWrapper<AttrEntity>();
         if (!attrIds.isEmpty()) {
@@ -125,19 +125,14 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
                         .like(AttrEntity::getAttrName, key);
             });
         }
-        IPage<AttrEntity> page = attrDao.selectPage(
-                new Query<AttrEntity>().getPage(params),
-                wrapper
-        );
-
-        return new PageUtils(page);
+        return attrService.queryPageByWrapper(params, wrapper);
     }
 
     @Override
     public List<AttrGroupResVo> getAttrGroupWithAttrByCatelogId(Long catelogId) {
         //查询属性分组
         LambdaQueryWrapper<AttrGroupEntity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(AttrGroupEntity::getCatelogId,catelogId);
+        wrapper.eq(AttrGroupEntity::getCatelogId, catelogId);
         List<AttrGroupEntity> attrGroupEntities = baseMapper.selectList(wrapper);
 
         //封装成vo返回
@@ -151,12 +146,23 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     }
 
     @Override
+    @Transactional
+    public void removeDetailByIds(List<Long> groupIds) {
+        //删除关联信息
+        relationService.remove(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
+                .in(AttrAttrgroupRelationEntity::getAttrGroupId,groupIds));
+        //删除分组
+        this.removeByIds(groupIds);
+
+    }
+
+    @Override
     public void deleteAttrRelation(AttrGroupReqRelationVo[] vos) {
         if (vos.length == 0) {
             return;
         }
         for (AttrGroupReqRelationVo vo : vos) {
-            relationDao.delete(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
+            relationService.remove(new LambdaQueryWrapper<AttrAttrgroupRelationEntity>()
                     .eq(AttrAttrgroupRelationEntity::getAttrGroupId, vo.getAttrGroupId())
                     .eq(AttrAttrgroupRelationEntity::getAttrId, vo.getAttrId()));
         }
@@ -176,7 +182,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     }
 
     private void findCategoryPath(Long catelogId, ArrayList<Long> list) {
-        CategoryEntity categoryEntity = categoryDao.selectById(catelogId);
+        CategoryEntity categoryEntity = categoryService.getById(catelogId);
         Long parentCid = categoryEntity.getParentCid();
         if (parentCid != 0) {
             findCategoryPath(parentCid, list);

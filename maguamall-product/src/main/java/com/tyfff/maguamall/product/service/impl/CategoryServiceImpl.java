@@ -1,32 +1,31 @@
 package com.tyfff.maguamall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.tyfff.maguamall.product.dao.CategoryBrandRelationDao;
-import com.tyfff.maguamall.product.entity.CategoryBrandRelationEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.tyfff.common.utils.PageUtils;
 import com.tyfff.common.utils.Query;
-
 import com.tyfff.maguamall.product.dao.CategoryDao;
+import com.tyfff.maguamall.product.entity.CategoryBrandRelationEntity;
 import com.tyfff.maguamall.product.entity.CategoryEntity;
+import com.tyfff.maguamall.product.service.CategoryBrandRelationService;
 import com.tyfff.maguamall.product.service.CategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
+
     @Autowired
-    private CategoryBrandRelationDao categoryBrandRelationDao;
+    private CategoryBrandRelationService categoryBrandRelationService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -62,11 +61,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Override
     public void updateDetail(CategoryEntity category) {
         this.updateById(category);
-        if (StringUtils.hasText(category.getName())){
+        if (StringUtils.hasText(category.getName())) {
             //同步更新关联表中的Name
             CategoryBrandRelationEntity categoryBrandRelationEntity = new CategoryBrandRelationEntity();
             categoryBrandRelationEntity.setCatelogName(category.getName());
-            categoryBrandRelationDao.update(
+            categoryBrandRelationService.update(
                     categoryBrandRelationEntity,
                     new LambdaQueryWrapper<CategoryBrandRelationEntity>().eq(CategoryBrandRelationEntity::getCatelogId, category.getCatId()));
         }

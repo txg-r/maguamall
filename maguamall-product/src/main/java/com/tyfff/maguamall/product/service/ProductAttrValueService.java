@@ -3,7 +3,9 @@ package com.tyfff.maguamall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tyfff.common.utils.PageUtils;
 import com.tyfff.maguamall.product.entity.ProductAttrValueEntity;
+import com.tyfff.maguamall.product.vo.request.spu.BaseAttrs;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,5 +18,7 @@ import java.util.Map;
 public interface ProductAttrValueService extends IService<ProductAttrValueEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    void save(Long spuId, List<BaseAttrs> baseAttrs);
 }
 

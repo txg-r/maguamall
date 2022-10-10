@@ -117,7 +117,7 @@ public class AttrGroupController {
      */
     @RequestMapping("/delete")
     public R delete(@RequestBody Long[] attrGroupIds){
-		attrGroupService.removeByIds(Arrays.asList(attrGroupIds));
+		attrGroupService.removeDetailByIds(Arrays.asList(attrGroupIds));
 
         return R.ok();
     }

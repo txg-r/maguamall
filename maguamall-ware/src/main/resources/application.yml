@@ -1,12 +1,12 @@
 server:
-  port: 8000
+  port: 9000
 
 spring:
   application:
     name: maguamall-ware
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://49.235.81.76:3306/maguamall_pms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://49.235.81.76:3306/maguamall_wms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
     password: A123456b
 
@@ -25,6 +25,7 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
-
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 

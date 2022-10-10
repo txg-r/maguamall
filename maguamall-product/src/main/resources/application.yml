@@ -1,7 +1,9 @@
 server:
   port: 4000
-  
+
 spring:
+  main:
+    allow-circular-references: true
   application:
     name: maguamall-product
   datasource:

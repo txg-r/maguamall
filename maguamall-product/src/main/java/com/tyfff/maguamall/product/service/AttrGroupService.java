@@ -33,5 +33,7 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
     PageUtils getNoAttrByRelation(Map<String, Object> params, Integer attrgroupId);
 
     List<AttrGroupResVo> getAttrGroupWithAttrByCatelogId(Long catelogId);
+
+    void removeDetailByIds(List<Long> groupIds);
 }
 

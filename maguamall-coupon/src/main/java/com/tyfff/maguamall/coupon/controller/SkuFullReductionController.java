@@ -1,19 +1,15 @@
 package com.tyfff.maguamall.coupon.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.tyfff.maguamall.coupon.entity.SkuFullReductionEntity;
-import com.tyfff.maguamall.coupon.service.SkuFullReductionService;
+import com.tyfff.common.to.SkuReductionTo;
 import com.tyfff.common.utils.PageUtils;
 import com.tyfff.common.utils.R;
+import com.tyfff.maguamall.coupon.entity.SkuFullReductionEntity;
+import com.tyfff.maguamall.coupon.service.SkuFullReductionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 
@@ -57,6 +53,13 @@ public class SkuFullReductionController {
     @RequestMapping("/save")
     public R save(@RequestBody SkuFullReductionEntity skuFullReduction){
 		skuFullReductionService.save(skuFullReduction);
+
+        return R.ok();
+    }
+
+    @PostMapping("/saveTo")
+    public R saveTo(@RequestBody SkuReductionTo skuReductionTo){
+        skuFullReductionService.save(skuReductionTo);
 
         return R.ok();
     }
