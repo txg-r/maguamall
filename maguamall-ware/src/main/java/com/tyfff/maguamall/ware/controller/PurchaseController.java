@@ -4,10 +4,13 @@ import com.tyfff.common.utils.PageUtils;
 import com.tyfff.common.utils.R;
 import com.tyfff.maguamall.ware.entity.PurchaseEntity;
 import com.tyfff.maguamall.ware.service.PurchaseService;
+import com.tyfff.maguamall.ware.vo.request.PurchaseDoneVo;
+import com.tyfff.maguamall.ware.vo.request.PurchaseMergeVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -57,6 +60,38 @@ public class PurchaseController {
     @RequestMapping("/save")
     public R save(@RequestBody PurchaseEntity purchase) {
         purchaseService.save(purchase);
+
+        return R.ok();
+    }
+
+    /**
+     * 合并采购需求
+     * @param mergeVo   vo对象
+     * @return  R
+     */
+    @PostMapping("/merge")
+    public R merge(@RequestBody PurchaseMergeVo mergeVo){
+        purchaseService.merge(mergeVo);
+
+        return R.ok();
+    }
+
+
+    /**
+     * 领取采购单
+     * @param purchaseIdS   被领取采购单的id
+     * @return  R
+     */
+    @PostMapping("/received")
+    public R received(@RequestBody List<Long> purchaseIdS){
+        purchaseService.received(purchaseIdS);
+
+        return R.ok();
+    }
+
+    @PostMapping("done")
+    public R done(@RequestBody PurchaseDoneVo doneVo){
+        purchaseService.done(doneVo);
 
         return R.ok();
     }

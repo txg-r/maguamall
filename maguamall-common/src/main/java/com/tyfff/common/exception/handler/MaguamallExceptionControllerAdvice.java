@@ -1,4 +1,4 @@
-package com.tyfff.maguamall.product.excepetion;
+package com.tyfff.common.exception.handler;
 
 import com.tyfff.common.utils.R;
 import lombok.extern.slf4j.Slf4j;
@@ -21,5 +21,11 @@ public class MaguamallExceptionControllerAdvice {
         BindingResult bindingResult = e.getBindingResult();
         Map<String, String> map = bindingResult.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
         return R.error(400,"数据校验异常").put("data",map);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public R handleRuntimeException(RuntimeException e){
+        log.error(e.getMessage());
+        return R.error(500,e.getMessage());
     }
 }
